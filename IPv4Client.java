@@ -1,3 +1,11 @@
+/*****************************************
+*	Nathan Asdarjian
+*	Alfredo Ceballos
+*	CS 380 - Computer Networks
+*	Project 3
+*	Professor Nima Davarpanah
+*****************************************/
+
 import java.io.*;
 import java.net.*;
 
@@ -26,8 +34,9 @@ public class IPv4Client
 		}
 		
 		s = (short) ~(sum & 0x0000FFFF);	// one's complement
-		return s;							// return checksum
-	}
+		return s;	// return checksum
+	}// End of checksum
+	
 	
 	public static byte[] IPv4Packet(byte[] data) throws Exception
 	{
@@ -67,40 +76,54 @@ public class IPv4Client
 		header[10] = (byte) ((cks & 0xFF00) >> 8);
 		header[11] = (byte) (cks & 0x00FF);
 		
+		// The packet's header data is already in the header byte array, here
+		// it is copied into the packet byte array, which is the size of 
+		// of the header plus the size of the data generated, that data is then
+		// also copied in at the end
 		byte[] packet = new byte[header.length + data.length];
 		for (int j = 0; j < header.length; j++) {packet[j] = header[j];}
 		for (int k = 0; k < data.length; k++) {packet[header.length + k] = data[k];}
+		
 		return packet;
-	}
+	} // End of IPv4Packet
 	
+	
+	// Since the data to be added at the end of the IPv4 packet is in powers
+	// of 2, this method generates a byte array who's size if a power of 2, 
+	// filled with random data
 	public static byte[] genByteArray(int n) 
 	{
 		int numBytes = (int)Math.pow(2, n);
-		
 		byte[] arr = new byte[numBytes];
 		System.out.println("size of data " + arr.length);
+		
 		for(int i = 0; i  < numBytes; i++){
 			arr[i] = (byte)(Math.random() * 255);
 		}
+		
 		return arr;
 	}
+	
+	
 	
 	public static void main(String[] args) throws Exception
 	{
 		try (Socket socket = new Socket("18.221.102.182", 38003))
 		{
-			// Creating client input stream to receive messages from server	
+			// Creating client input/output streams to receive 
+			// and send messages from and to server	
 			InputStream is = socket.getInputStream();
 			InputStreamReader isr = new InputStreamReader(is, "UTF-8");
 			BufferedReader br = new BufferedReader(isr);
 			OutputStream os = socket.getOutputStream();
 			
 			for(int i = 1; i <= 12; i++) {
-				byte[] d = genByteArray(i);
-				byte[] a = IPv4Packet(d);
-				os.write(a);
-				System.out.println(br.readLine());
+				byte[] d = genByteArray(i);	// Random data array created
+				byte[] a = IPv4Packet(d);	//IPv4 packet created
+				os.write(a);	// Packet sent to server
+				System.out.println(br.readLine());	// Reading server response
 			}
 		}	
 	}
-}
+	
+}// End of file

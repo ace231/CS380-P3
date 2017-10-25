@@ -6,23 +6,27 @@ public class IPv4Client
 	public static short checksum(byte[] bytes)
 	{
 		int b = (bytes.length + (bytes.length % 2)) / 2;	// pairs of bytes
-		short s;											// temp short
-		int sum = 0;										// 32 bit storage space
+		short s;	// temp short
+		int sum = 0;	// 32 bit storage space
 		
-		for (short i = 0; i < b; i++) {						// sum pairs of bytes
+		for (short i = 0; i < b; i++) {	// sum pairs of bytes
 			
-			s = (short) ((bytes[i * 2] & 0xFF) << 8);		// align bytes in short
-			if ((i * 2) + 1 < bytes.length) s += (bytes[(i * 2) + 1] & 0xFF);
-			sum += (s & 0xFFFF);							// add new short to sum
-			if ((sum & 0xFFFF0000) > 0)						// if overflow,
+			s = (short) ((bytes[i * 2] & 0xFF) << 8);	// align bytes in short
+			if ((i * 2) + 1 < bytes.length) {
+				s += (bytes[(i * 2) + 1] & 0xFF);
+			}
+			
+			sum += (s & 0xFFFF);	// add new short to sum
+			
+			if ((sum & 0xFFFF0000) > 0)	// if overflow,
 			{
-				sum &= 0x0000FFFF;							// drop first 16 bits
-				sum++;										// wrap around overflow
+				sum &= 0x0000FFFF;	// drop first 16 bits
+				sum++;				// wrap around overflow
 			}
 		}
 		
-		s = (short) ~(sum & 0x0000FFFF);					// one's complement
-		return s;											// return checksum
+		s = (short) ~(sum & 0x0000FFFF);	// one's complement
+		return s;							// return checksum
 	}
 	
 	public static byte[] IPv4Packet(byte[] data) throws Exception
@@ -51,25 +55,26 @@ public class IPv4Client
 		String[] src = in.readLine().split("\\.");
 		for (int i = 0; i < src.length; i++) {
 			int j = Integer.parseInt(src[i]);
-			header[i + 12] = (byte) adadaddj;			// source address bytes
+			header[i + 12] = (byte) j;	// source address bytes
 		}
 		
 		header[16] = (byte) 18;
 		header[17] = (byte) 221;
 		header[18] = (byte) 102;
-		header[19] = (byte) 182;				// destination address bytes
+		header[19] = (byte) 182;	// destination address bytes
 		
-		short cks = checksum(header);			// checksum of header
+		short cks = checksum(header);	// checksum of header
 		header[10] = (byte) ((cks & 0xFF00) >> 8);
 		header[11] = (byte) (cks & 0x00FF);
 		
 		byte[] packet = new byte[header.length + data.length];
-		for (int j = 0; j < header.length; j++) packet[j] = header[j];
-		for (int k = 0; k < data.length; k++) packet[header.length + k] = data[k];
+		for (int j = 0; j < header.length; j++) {packet[j] = header[j];}
+		for (int k = 0; k < data.length; k++) {packet[header.length + k] = data[k];}
 		return packet;
 	}
 	
-	public static byte[] genByteArray(int n) {
+	public static byte[] genByteArray(int n) 
+	{
 		int numBytes = (int)Math.pow(2, n);
 		
 		byte[] arr = new byte[numBytes];
@@ -96,6 +101,6 @@ public class IPv4Client
 				os.write(a);
 				System.out.println(br.readLine());
 			}
-			
+		}	
 	}
 }
